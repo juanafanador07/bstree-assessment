@@ -7,6 +7,7 @@ import {
   inOrder,
   preOrder,
   postOrder,
+  getHeight,
 } from "./bst";
 
 describe("bst placeholders", () => {
@@ -99,5 +100,33 @@ describe("postOrder traversal", () => {
     root = insert(root, 7);
 
     expect(postOrder(root)).toEqual([3, 7, 5, 15, 10]);
+  });
+});
+
+describe("getHeight", () => {
+  it("should return 0 for an empty tree (null)", () => {
+    expect(getHeight(null)).toBe(0);
+  });
+
+  it("should return 1 for a single-node tree", () => {
+    const root = createNode(10);
+    expect(getHeight(root)).toBe(1);
+  });
+
+  it("should return correct height for a balanced tree", () => {
+    let root = null;
+    root = insert(root, 10);
+    root = insert(root, 5);
+    root = insert(root, 15);
+    expect(getHeight(root)).toBe(2);
+  });
+
+  it("should return correct height for an unbalanced tree path", () => {
+    let root = null;
+    root = insert(root, 10);
+    root = insert(root, 5);
+    root = insert(root, 3);
+    root = insert(root, 1);
+    expect(getHeight(root)).toBe(4);
   });
 });
