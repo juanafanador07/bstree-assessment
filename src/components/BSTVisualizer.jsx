@@ -2,13 +2,9 @@
  * BSTVisualizer.jsx
  *
  * Componente principal del visualizador de Árbol Binario de Búsqueda.
- *
- * ⚠️  NOTA PARA EL ESTUDIANTE:
- * Este componente tiene problemas de rendimiento y un bug de UX.
- * Usa React DevTools Profiler para encontrarlos.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Tree from "react-d3-tree";
 
 import { insert, search, inOrder, preOrder, postOrder, toD3Format, randomInt } from "../utils/bst";
@@ -17,9 +13,6 @@ import SearchBar from "./SearchBar";
 
 import styles from "./BSTVisualizer.module.css";
 
-// BUG #5 (Performance): Esta función se recrea en cada render.
-// Cuando el árbol tiene 20+ nodos, el re-render se siente lento.
-// Pista: ¿qué hook de React sirve para memoizar una función?
 const getTraversalResult = (root, type) => {
   switch (type) {
     case "inOrder":   return inOrder(root);
@@ -67,19 +60,34 @@ export default function BSTVisualizer() {
   };
 
   // ── Derived data ────────────────────────────────────────────────────────────
-  const d3Data     = root ? toD3Format(root) : null;
+  // Se utiliza `useMemo` para memoizar el formato D3 del árbol (`d3Data`).
+  // Convertir el árbol binario de búsqueda a la estructura jerárquica de react-d3-tree
+  // implica recorrer recursivamente todo el árbol. Memoizar este cálculo con la dependencia `[root]` evita
+  // reconstruir la estructura visual en renders no relacionados (como cuando se escribe en los campos de texto).
+  const d3Data = useMemo(() => {
+    return root ? toD3Format(root) : null;
+  }, [root]);
 
-  // BUG #5 continúa: traversalResult se recalcula en cada render,
-  // no solo cuando root o activeTraversal cambian.
-  const traversalResult = activeTraversal
-    ? getTraversalResult(root, activeTraversal)
-    : [];
+  // Se utiliza `useMemo` para memoizar el resultado del recorrido del árbol (inOrder, preOrder, postOrder).
+  // Dado que el cálculo de los recorridos es una operación costosa O(N) que depende únicamente del estado `root` y
+  // `activeTraversal`, evitar que se vuelva a calcular en cada render (por ejemplo, al escribir en el campo de texto
+  // que actualiza `inputValue`) mejora significativamente el rendimiento cuando el árbol tiene muchos nodos.
+  const traversalResult = useMemo(() => {
+    return activeTraversal ? getTraversalResult(root, activeTraversal) : [];
+  }, [root, activeTraversal]);
 
   // ── Node Rendering ──────────────────────────────────────────────────────────
   /**
    * Función de render personalizada para cada nodo del árbol.
+   *
+   * Se utiliza `useCallback` para memoizar la función de renderizado de los nodos.
+   * Al definir esta función dentro de `BSTVisualizer`, se recrea una nueva instancia en cada renderizado.
+   * Como se pasa como prop (`renderCustomNodeElement`) al componente `<Tree />` de `react-d3-tree`, el cambio en la
+   * referencia de la función obliga a `<Tree />` y a todos sus nodos a re-renderizarse de forma innecesaria.
+   * Al envolverla en `useCallback` con la dependencia `[foundNode]`, la referencia se mantiene idéntica en renders
+   * subsecuentes a menos que cambie `foundNode`, lo que optimiza enormemente el tiempo de respuesta visual de la UI.
    */
-  const renderCustomNode = ({ nodeDatum }) => {
+  const renderCustomNode = useCallback(({ nodeDatum }) => {
     const isHighlighted = foundNode !== null && nodeDatum.name === String(foundNode);
     return (
       <g>
@@ -95,7 +103,7 @@ export default function BSTVisualizer() {
         </text>
       </g>
     );
-  };
+  }, [foundNode]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
