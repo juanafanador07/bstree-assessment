@@ -43,13 +43,12 @@ export default function BSTVisualizer() {
   const handleInsert = () => {
     const parsed = parseInt(inputValue, 10);
 
-    // BUG #6 (UX): Acepta NaN silenciosamente. Si el usuario escribe
-    // "abc" y presiona insertar, no pasa nada y no hay feedback.
-    // El error se traga. Debes manejar este caso y mostrar el errorMessage.
     if (!isNaN(parsed)) {
       setRoot((prevRoot) => insert(prevRoot, parsed));
       setInputValue("");
       setErrorMessage("");
+    } else {
+      setErrorMessage("Por favor, ingresa un número válido.");
     }
   };
 
@@ -57,6 +56,7 @@ export default function BSTVisualizer() {
   const handleRandomInsert = () => {
     const value = randomInt(1, 99);
     setRoot((prevRoot) => insert(prevRoot, value));
+    setErrorMessage("");
   };
 
   // ── Search ──────────────────────────────────────────────────────────────────
@@ -78,24 +78,24 @@ export default function BSTVisualizer() {
   // ── Node Rendering ──────────────────────────────────────────────────────────
   /**
    * Función de render personalizada para cada nodo del árbol.
-   * TODO: El estudiante debe modificar esto para que los nodos
-   * que coincidan con `foundNode` se resalten visualmente.
    */
-  const renderCustomNode = ({ nodeDatum }) => (
-    <g>
-      {/* TODO: Cambiar el color del círculo si nodeDatum.name === String(foundNode) */}
-      <circle r={20} fill="#4A90D9" stroke="#fff" strokeWidth={2} />
-      <text
-        fill="white"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={12}
-        fontWeight="bold"
-      >
-        {nodeDatum.name}
-      </text>
-    </g>
-  );
+  const renderCustomNode = ({ nodeDatum }) => {
+    const isHighlighted = foundNode !== null && nodeDatum.name === String(foundNode);
+    return (
+      <g>
+        <circle r={20} fill={isHighlighted ? "#ff9800" : "#4A90D9"} stroke="#fff" strokeWidth={2} />
+        <text
+          fill="white"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          {nodeDatum.name}
+        </text>
+      </g>
+    );
+  };
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -121,7 +121,11 @@ export default function BSTVisualizer() {
           </button>
         </div>
 
-        {/* TODO: Renderizar errorMessage aquí cuando exista */}
+        {errorMessage && (
+          <div className={styles.errorMessage}>
+            {errorMessage}
+          </div>
+        )}
 
         <SearchBar
           value={searchTerm}
