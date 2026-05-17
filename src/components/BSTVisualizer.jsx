@@ -43,13 +43,12 @@ export default function BSTVisualizer() {
   const handleInsert = () => {
     const parsed = parseInt(inputValue, 10);
 
-    // BUG #6 (UX): Acepta NaN silenciosamente. Si el usuario escribe
-    // "abc" y presiona insertar, no pasa nada y no hay feedback.
-    // El error se traga. Debes manejar este caso y mostrar el errorMessage.
     if (!isNaN(parsed)) {
       setRoot((prevRoot) => insert(prevRoot, parsed));
       setInputValue("");
       setErrorMessage("");
+    } else {
+      setErrorMessage("Por favor, ingresa un número válido.");
     }
   };
 
@@ -57,6 +56,7 @@ export default function BSTVisualizer() {
   const handleRandomInsert = () => {
     const value = randomInt(1, 99);
     setRoot((prevRoot) => insert(prevRoot, value));
+    setErrorMessage("");
   };
 
   // ── Search ──────────────────────────────────────────────────────────────────
@@ -121,7 +121,11 @@ export default function BSTVisualizer() {
           </button>
         </div>
 
-        {/* TODO: Renderizar errorMessage aquí cuando exista */}
+        {errorMessage && (
+          <div className={styles.errorMessage}>
+            {errorMessage}
+          </div>
+        )}
 
         <SearchBar
           value={searchTerm}
