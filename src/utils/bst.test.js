@@ -31,3 +31,15 @@ describe("bst placeholders", () => {
     expect(search(root, "5")).toBeNull();
   });
 });
+
+describe("BST Edge Cases", () => {
+  it("insert: should return the exact same node reference when inserting a duplicate value", () => {
+    const root = createNode(10);
+    const result = insert(root, 10);
+    expect(result).toBe(root);
+  });
+
+  it("search: should return null when searching in an empty tree (null root)", () => {
+    expect(search(null, 5)).toBeNull();
+  });
+});
