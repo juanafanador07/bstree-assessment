@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createNode, insert, search } from "./bst";
+import { createNode, insert, search, inOrder } from "./bst";
 
 describe("bst placeholders", () => {
   it("insert should place smaller values on the left", () => {
@@ -41,5 +41,22 @@ describe("BST Edge Cases", () => {
 
   it("search: should return null when searching in an empty tree (null root)", () => {
     expect(search(null, 5)).toBeNull();
+  });
+});
+
+describe("inOrder traversal", () => {
+  it("should return an empty array for an empty tree (null)", () => {
+    expect(inOrder(null)).toEqual([]);
+  });
+
+  it("should return values in order (left -> root -> right)", () => {
+    let root = null;
+    root = insert(root, 10);
+    root = insert(root, 5);
+    root = insert(root, 15);
+    root = insert(root, 3);
+    root = insert(root, 7);
+
+    expect(inOrder(root)).toEqual([3, 5, 7, 10, 15]);
   });
 });
