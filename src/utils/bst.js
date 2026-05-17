@@ -92,14 +92,14 @@ export const inOrder = (node) => {
 /**
  * Recorrido Pre-Order (raíz → izquierda → derecha).
  *
- * TODO: Implementar esta función.
- *
  * @param {object|null} node
  * @returns {number[]}
  */
 export const preOrder = (node) => {
-  // TODO: Implementar
-  return [];
+  if (node === null) {
+    return [];
+  }
+  return [node.value, ...preOrder(node.left), ...preOrder(node.right)];
 };
 
 /**

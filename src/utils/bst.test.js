@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createNode, insert, search, inOrder } from "./bst";
+import { createNode, insert, search, inOrder, preOrder } from "./bst";
 
 describe("bst placeholders", () => {
   it("insert should place smaller values on the left", () => {
@@ -58,5 +58,22 @@ describe("inOrder traversal", () => {
     root = insert(root, 7);
 
     expect(inOrder(root)).toEqual([3, 5, 7, 10, 15]);
+  });
+});
+
+describe("preOrder traversal", () => {
+  it("should return an empty array for an empty tree (null)", () => {
+    expect(preOrder(null)).toEqual([]);
+  });
+
+  it("should return values in pre-order (root -> left -> right)", () => {
+    let root = null;
+    root = insert(root, 10);
+    root = insert(root, 5);
+    root = insert(root, 15);
+    root = insert(root, 3);
+    root = insert(root, 7);
+
+    expect(preOrder(root)).toEqual([10, 5, 3, 7, 15]);
   });
 });
